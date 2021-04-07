@@ -362,17 +362,18 @@ contract("SwipeIWO", async (accounts) => {
       );
       assert.equal(remainBalance, remainAmount.toFixed());
 
-      // Check Base Token Total Supply
-      const remainTotalSupply = new BigNumber(originalTotalSupply).minus(new BigNumber(burnAmount));
-      const newTotalSupply = await callMethod(
-        this.baseToken.methods.totalSupply
-      );
-      assert.equal(newTotalSupply, remainTotalSupply.toFixed());
+      // // Check Base Token Total Supply
+      // const remainTotalSupply = new BigNumber(originalTotalSupply).minus(new BigNumber(burnAmount));
+      // const newTotalSupply = await callMethod(
+      //   this.baseToken.methods.totalSupply
+      // );
+      // assert.equal(newTotalSupply, remainTotalSupply.toFixed());
     });
   });
 
   describe('Withdraw Base Token Test', async() => {
-    const baseAmount = '100000000000000000000'; // 100 Base Token
+    const baseAmount = new BigNumber('100000000000000000000'); // 100 Base Token
+    const withdrawAmount = new BigNumber('50000000000000000000'); // 50 Base Token
 
     beforeEach(async() => {
       // Set Base Token
@@ -384,7 +385,13 @@ contract("SwipeIWO", async (accounts) => {
     it ('Check Owner', async() => {
       // Call withdrawBaseToken with different address
       await truffleAssert.reverts(
-        this.swipeIWOInstance.withdrawBaseToken(accounts[2], { from: accounts[1] }),
+        this.swipeIWOInstance.withdrawBaseToken(
+          accounts[2],
+          withdrawAmount.toFixed(),
+          { 
+            from: accounts[1]
+          }
+        ),
         "Ownable: caller is not the owner"
       );
     });
@@ -392,8 +399,11 @@ contract("SwipeIWO", async (accounts) => {
     it ('Check Initial withdrawBaseToken', async() => {
       // Call burnBaseToken initially
       await truffleAssert.reverts(
-        this.swipeIWOInstance.withdrawBaseToken(accounts[1]),
-        "The Base balance of contract should be more than zero"
+        this.swipeIWOInstance.withdrawBaseToken(
+          accounts[1],
+          withdrawAmount.toFixed()
+        ),
+        "The withdrawAmount should be less than balance"
       );
     });
 
@@ -413,26 +423,33 @@ contract("SwipeIWO", async (accounts) => {
       assert.equal(baseBalance, baseAmount);
 
       // Withdraw BaseToken To Withdrawal Address
-      await this.swipeIWOInstance.withdrawBaseToken(accounts[1]);
+      await this.swipeIWOInstance.withdrawBaseToken(
+        accounts[1],
+        withdrawAmount
+      );
 
       // Check Contract Balance
       const newBalanceOfContract = await callMethod(
         this.baseToken.methods.balanceOf,
         [this.swipeIWOInstance.address]
       );
-      assert.equal(newBalanceOfContract, '0');
+      assert.equal(
+        newBalanceOfContract,
+        baseAmount.minus(withdrawAmount).toFixed()
+      );
 
       // Check Base Balance Of Withdrawal Address
       const baseBalanceOfWithdrawalAddress = await callMethod(
         this.baseToken.methods.balanceOf,
         [accounts[1]]
       );
-      assert.equal(baseBalanceOfWithdrawalAddress, baseAmount);
+      assert.equal(baseBalanceOfWithdrawalAddress, withdrawAmount.toFixed());
     });
   });
 
   describe('Withdraw Sale Token Test', async() => {
-    const saleAmount = '100000000000000000000'; // 100 Sale Token
+    const saleAmount = new BigNumber('100000000000000000000'); // 100 Sale Token
+    const withdrawAmount = new BigNumber('50000000000000000000'); // 50 Sale Token
 
     beforeEach(async() => {
       // Set Sale Token
@@ -444,7 +461,13 @@ contract("SwipeIWO", async (accounts) => {
     it ('Check Owner', async() => {
       // Call withdrawSaleToken with different address
       await truffleAssert.reverts(
-        this.swipeIWOInstance.withdrawSaleToken(accounts[2], { from: accounts[1] }),
+        this.swipeIWOInstance.withdrawSaleToken(
+          accounts[2],
+          withdrawAmount.toFixed(),
+          {
+            from: accounts[1]
+          }
+        ),
         "Ownable: caller is not the owner"
       );
     });
@@ -452,8 +475,11 @@ contract("SwipeIWO", async (accounts) => {
     it ('Check Initial withdrawSaleToken', async() => {
       // Call burnSaleToken initially
       await truffleAssert.reverts(
-        this.swipeIWOInstance.withdrawSaleToken(accounts[1]),
-        "The Sale balance of contract should be more than zero"
+        this.swipeIWOInstance.withdrawSaleToken(
+          accounts[1],
+          withdrawAmount.toFixed()
+        ),
+        "The withdrawAmount should be less than balance"
       );
     });
 
@@ -473,21 +499,27 @@ contract("SwipeIWO", async (accounts) => {
       assert.equal(saleBalance, saleAmount);
 
       // Withdraw SaleToken To Withdrawal Address
-      await this.swipeIWOInstance.withdrawSaleToken(accounts[1]);
+      await this.swipeIWOInstance.withdrawSaleToken(
+        accounts[1],
+        withdrawAmount
+      );
 
       // Check Contract Balance
       const newBalanceOfContract = await callMethod(
         this.saleToken.methods.balanceOf,
         [this.swipeIWOInstance.address]
       );
-      assert.equal(newBalanceOfContract, '0');
+      assert.equal(
+        newBalanceOfContract,
+        saleAmount.minus(withdrawAmount).toFixed()
+      );
 
       // Check Sale Balance Of Withdrawal Address
       const saleBalanceOfWithdrawalAddress = await callMethod(
         this.saleToken.methods.balanceOf,
         [accounts[1]]
       );
-      assert.equal(saleBalanceOfWithdrawalAddress, saleAmount);
+      assert.equal(saleBalanceOfWithdrawalAddress, withdrawAmount.toFixed());
     });
   });
 

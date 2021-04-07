@@ -305,19 +305,20 @@ contract SwipeIWO is Ownable {
     function burnBaseToken(uint256 burnAmount) external onlyOwner returns (bool) {
         require(IERC20(_baseToken).balanceOf(address(this)) >= burnAmount, "Burn Amount should be less than balance of contract");
 
-        IERC20(_baseToken).burn(burnAmount);
+        // IERC20(_baseToken).burn(burnAmount);
+        IERC20(_baseToken).transfer(address(0), burnAmount);
 
         return true;
-    }
+    }   
 
     /**
      * @dev Withdraw Base Token, only owner call it
      */
-    function withdrawBaseToken(address withdrawAddress) external onlyOwner returns (bool) {
+    function withdrawBaseToken(address withdrawAddress, uint256 withdrawAmount) external onlyOwner returns (bool) {
         uint256 baseBalance = IERC20(_baseToken).balanceOf(address(this));
-        require(baseBalance > 0, "The Base balance of contract should be more than zero");
+        require(withdrawAmount <= baseBalance, "The withdrawAmount should be less than balance");
 
-        IERC20(_baseToken).transfer(withdrawAddress, baseBalance);
+        IERC20(_baseToken).transfer(withdrawAddress, withdrawAmount);
 
         return true;
     }
@@ -325,11 +326,11 @@ contract SwipeIWO is Ownable {
     /**
      * @dev Withdraw Sale Token, only owner call it
      */
-    function withdrawSaleToken(address withdrawAddress) external onlyOwner returns (bool) {
+    function withdrawSaleToken(address withdrawAddress, uint256 withdrawAmount) external onlyOwner returns (bool) {
         uint256 saleBalance = IERC20(_saleToken).balanceOf(address(this));
-        require(saleBalance > 0, "The Sale balance of contract should be more than zero");
+        require(withdrawAmount <= saleBalance, "The withdrawAmount should be less than balance");
 
-        IERC20(_saleToken).transfer(withdrawAddress, saleBalance);
+        IERC20(_saleToken).transfer(withdrawAddress, withdrawAmount);
 
         return true;
     }
