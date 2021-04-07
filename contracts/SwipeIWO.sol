@@ -8,7 +8,6 @@ import "./SafeMath.sol";
 import "./Address.sol";
 import "./IERC20.sol";
 import "./Ownable.sol";
-import "./SafeERC20.sol";
 
 contract SwipeIWO is Ownable {
     struct WhiteList {
@@ -18,7 +17,6 @@ contract SwipeIWO is Ownable {
 
     // Use SafeMath for uint256 and SafeERC20 for IERC20
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
     // Address For BaseToken. e.x: SXP
     address private _baseToken;
