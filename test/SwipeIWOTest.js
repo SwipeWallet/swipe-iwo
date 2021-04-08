@@ -661,10 +661,12 @@ contract("SwipeIWO", async (accounts) => {
   describe('Swipe IWO Purchase Test', async() => {
     const limitBaseAmount = new BigNumber('100000000000000000000'); // 100 Base Token
     const purchaseBaseAmount = new BigNumber('5000000000000000000'); // 5 Base Token
+    const purchaseBase2Amount = new BigNumber('4000000000000000000'); // 5 Base Token
     const saleRate = new BigNumber('10000000000000000000'); // 10 Sale Token = 1 Base Token, Unit: 1e18, Should Divide By 1e18
     const minBaseAmouont = new BigNumber('1000000000000000000'); // Min Base: 1
-    const maxBaseAmouont = new BigNumber('10000000000000000000'); // Min Base: 10
+    const maxBaseAmouont = new BigNumber('9000000000000000000'); // Max Base: 9
     const purchaseSaleAmount = purchaseBaseAmount.multipliedBy(saleRate).dividedBy(new BigNumber(defaultValue));
+    const purchaseSale2Amount = purchaseBase2Amount.multipliedBy(saleRate).dividedBy(new BigNumber(defaultValue));
     const limitSaleAmount = limitBaseAmount.multipliedBy(saleRate).dividedBy(new BigNumber(defaultValue));
     const addressList = [
       accounts[1],
@@ -679,18 +681,18 @@ contract("SwipeIWO", async (accounts) => {
         isWhite: true,
         maxAllowance: purchaseBaseAmount.multipliedBy(2).minus(1).toFixed()
       }
-    ]
+    ];
 
     beforeEach(async() => {
-      const startTime = (parseInt(lastBlockTimeStamp, 10) - 1000).toString();
-      const endTime = (parseInt(lastBlockTimeStamp, 10) + 1000).toString();
-
+      const startTime = (new BigNumber(lastBlockTimeStamp)).minus(1000).toFixed();
+      const endTime = (new BigNumber(lastBlockTimeStamp)).plus(1000).toFixed();
+  
       // Set Base Token Address
       await this.swipeIWOInstance.setBaseToken(this.baseTokenInstance.address);
       // Set Sale Token Address
       await this.swipeIWOInstance.setSaleToken(this.saleTokenInstance.address);    
       // Set Sale Rate
-      await this.swipeIWOInstance.getSaleRate(saleRate.toFixed());
+      await this.swipeIWOInstance.setSaleRate(saleRate.toFixed());
       // Set IWO IsSale
       await this.swipeIWOInstance.setIsSale(true);
       // Set IWO Start Time
@@ -700,7 +702,7 @@ contract("SwipeIWO", async (accounts) => {
       // Set Min Base Amount
       await this.swipeIWOInstance.setMinBaseAmount(minBaseAmouont.toFixed());
       // Set Max Base Amount
-      await this.swipeIWOInstance.setMaxBbaseAmount(maxBaseAmouont.toFixed());
+      await this.swipeIWOInstance.setMaxBaseAmount(maxBaseAmouont.toFixed());
       // Set Limit Base Amount
       await this.swipeIWOInstance.setLimitBaseAmount(limitBaseAmount.toFixed());
       // Set White Status
@@ -710,7 +712,7 @@ contract("SwipeIWO", async (accounts) => {
         {
           from: deployer
         }
-      );
+      );      
 
       // Transfer Limit Sale Amount to Contract
       await this.saleTokenInstance.transfer(
@@ -724,7 +726,7 @@ contract("SwipeIWO", async (accounts) => {
         limitBaseAmount.toFixed()
       );
 
-      // Transfer Base Token To First Account
+      // Transfer Base Token To Second Account
       await this.baseTokenInstance.transfer(
         accounts[2],
         limitBaseAmount.toFixed()
@@ -929,7 +931,7 @@ contract("SwipeIWO", async (accounts) => {
       // Call purchaseSaleToken with First Account Again
       await truffleAssert.reverts(
         this.swipeIWOInstance.purchaseSaleToken(purchaseBaseAmount, { from: accounts[1] }),
-        "Purchase Amount should be less than maxBaseAmount"
+        "You can not purchase more than maxAllowance"
       );
     });
 
@@ -975,26 +977,26 @@ contract("SwipeIWO", async (accounts) => {
 
       await this.baseTokenInstance.approve(
         this.swipeIWOInstance.address,
-        purchaseBaseAmount.toFixed(),
+        purchaseBase2Amount.toFixed(),
         { from: accounts[1] }
       );
-      await this.swipeIWOInstance.purchaseSaleToken(purchaseBaseAmount.toFixed(), { from: accounts[1] });
+      await this.swipeIWOInstance.purchaseSaleToken(purchaseBase2Amount.toFixed(), { from: accounts[1] });
 
       // Check User Base Amount
       userBaseAmount = await callMethod(this.baseToken.methods.balanceOf, [accounts[1]]);
-      assert.equal(userBaseAmount, (new BigNumber(userOldBaseAmount)).minus(purchaseBaseAmount).toFixed());
+      assert.equal(userBaseAmount, (new BigNumber(userOldBaseAmount)).minus(purchaseBase2Amount).toFixed());
 
       // Check User Sale Amount
       userSaleAmount = await callMethod(this.saleToken.methods.balanceOf, [accounts[1]]);
-      assert.equal(userSaleAmount, (new BigNumber(userOldSaleAmount)).plus(purchaseSaleAmount).toFixed());
+      assert.equal(userSaleAmount, (new BigNumber(userOldSaleAmount)).plus(purchaseSale2Amount).toFixed());
 
       // Check Contract Base Amount
       contractBaseAmount = await callMethod(this.baseToken.methods.balanceOf, [this.swipeIWOInstance.address]);
-      assert.equal(contractBaseAmount, (new BigNumber(contractOldBaseAmount)).plus(purchaseBaseAmount).toFixed());
+      assert.equal(contractBaseAmount, (new BigNumber(contractOldBaseAmount)).plus(purchaseBase2Amount).toFixed());
 
       // Check Contract Sale Amount
       contractSaleAmount =  await callMethod(this.saleToken.methods.balanceOf, [this.swipeIWOInstance.address]);
-      assert.equal(contractSaleAmount, (new BigNumber(contractOldSaleAmount)).minus(purchaseSaleAmount).toFixed());
+      assert.equal(contractSaleAmount, (new BigNumber(contractOldSaleAmount)).minus(purchaseSale2Amount).toFixed());
     });
 
     it ('Check Double Purchase Base Token Max Allowance - Failed Case', async() => {
