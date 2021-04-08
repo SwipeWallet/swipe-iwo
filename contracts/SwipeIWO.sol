@@ -84,35 +84,35 @@ contract SwipeIWO is Ownable {
         _baseToken = address(0);
         _saleToken = address(0);
 
-        // // Initialize the rate&isSale, should be divide 1e18 when purchase
-        // _saleRate = 1e18;
-        // _isSale = false;
-
-        // // Initialize the start&end time
-        // _startTime = block.timestamp;
-        // _endTime = block.timestamp;
-
-        // // Initialize the max&min base amount
-        // _minBaseAmount = 1e18;
-        // _maxBaseAmount = 1e18;
-
-        // // Initialize the baseLimitAmount
-        // _limitBaseAmount = 1e18;
-
         // Initialize the rate&isSale, should be divide 1e18 when purchase
-        _saleRate = 10e18;
-        _isSale = true;
+        _saleRate = 1e18;
+        _isSale = false;
 
         // Initialize the start&end time
-        _startTime = uint256(block.timestamp).sub(10000);
-        _endTime = uint256(block.timestamp).add(10000);
+        _startTime = block.timestamp;
+        _endTime = block.timestamp;
 
         // Initialize the max&min base amount
         _minBaseAmount = 1e18;
-        _maxBaseAmount = 10e18;
+        _maxBaseAmount = 1e18;
 
         // Initialize the baseLimitAmount
-        _limitBaseAmount = 100e18;
+        _limitBaseAmount = 1e18;
+
+        // Initialize the rate&isSale, should be divide 1e18 when purchase
+        // _saleRate = 10e18;
+        // _isSale = true;
+
+        // // Initialize the start&end time
+        // _startTime = uint256(block.timestamp).sub(10000);
+        // _endTime = uint256(block.timestamp).add(10000);
+
+        // // Initialize the max&min base amount
+        // _minBaseAmount = 1e18;
+        // _maxBaseAmount = 10e18;
+
+        // // Initialize the baseLimitAmount
+        // _limitBaseAmount = 100e18;
     }
 
     /**

@@ -29,9 +29,9 @@ contract("SwipeIWO", async (accounts) => {
     this.saleTokenInstance = await saleToken.new({ from: deployer });
 
     // Create Contracts
-    this.swipeIWO = await new web3.eth.Contract(swipeIWOABI, this.swipeIWOInstance.address);
-    this.baseToken = await new web3.eth.Contract(baseTokenABI, this.baseTokenInstance.address);
-    this.saleToken = await new web3.eth.Contract(saleTokenABI, this.saleTokenInstance.address);
+    this.swipeIWO = await new web3.eth.Contract(swipeIWOABI.abi, this.swipeIWOInstance.address);
+    this.baseToken = await new web3.eth.Contract(baseTokenABI.abi, this.baseTokenInstance.address);
+    this.saleToken = await new web3.eth.Contract(saleTokenABI.abi, this.saleTokenInstance.address);
   });
   
   describe('Base Token Test', async() => {
